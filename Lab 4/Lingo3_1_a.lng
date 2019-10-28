@@ -1,0 +1,40 @@
+MODEL:
+
+SETS:
+	MOTTAG / G, H, I / : DEMAND;
+	LAST / E, F /  :;
+	LEVERANTOR / A, B, C, D / : CAPACITY;
+	ROUTE_LL(LAST, LEVERANTOR) : PRIS_LL, ANTAL_LL;
+	ROUTE_LM(MOTTAG, LAST) : PRIS_LM, ANTAL_LM;
+ENDSETS
+
+!Mål;
+[OBJ] MIN=@SUM(ROUTE_LL: PRIS_LL * ANTAL_LL) + @SUM(ROUTE_LM : PRIS_LM * ANTAL_LM);
+
+@FOR(LEVERANTOR(I) : 
+	@SUM(LAST(J) : ANTAL_LL(J, I)) <= 
+		CAPACITY(I)
+);
+
+
+@FOR(LAST(I) : 
+	@SUM(MOTTAG(J) : ANTAL_LM(J, I)) - @SUM(LEVERANTOR(J) : ANTAL_LL(I, J)) = 0
+);
+
+@FOR(MOTTAG(J) : 
+	@SUM(LAST(I) : ANTAL_LM(J, I)) >= DEMAND(J)
+);
+
+!Ta bort kommentaren för att begränsa lösningen enl. deluppgift b
+!@SUM(LEVERANTOR(I) : ANTAL_LL(1, I)) <= 700;
+
+DATA:
+	CAPACITY  = 350, 200, 260, 450;
+	DEMAND    = 550, 260, 410;
+	PRIS_LL	= 4, 5, 8, 4,
+		  6, 7, 5, 4;
+	PRIS_LM	= 2, 2,
+		  3, 2,
+		  1, 4;
+ENDDATA
+END

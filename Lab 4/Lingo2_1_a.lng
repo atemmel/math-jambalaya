@@ -1,0 +1,32 @@
+MODEL:
+!2 Fabriker, 5 Underleverantörer, 1 Förbindelse;
+SETS:
+	FABRIK / FA1, FA2 /  : DEMAND;
+	LEVERANTOR / LEA, LEB, LEC, LED, LEE / : CAPACITY;
+	ROUTES(FABRIK, LEVERANTOR) : PRIS, ANTAL;
+ENDSETS
+
+!Mål;
+[OBJ] MIN=@SUM(ROUTES: PRIS * ANTAL);
+
+!Constraint 1, Demand;
+@FOR(LEVERANTOR(J) : [SUP]
+	@SUM(FABRIK(I) : ANTAL(I,J)) <=
+		CAPACITY(J));
+
+!Constraint 2, Supply;
+@FOR(FABRIK(I) : [DEM]
+	@SUM(LEVERANTOR(J) : ANTAL(I, J)) >= 
+		DEMAND(I));
+
+DATA:
+	CAPACITY = 170, 260, 135, 155, 190;
+	DEMAND = 360, 540;
+	PRIS =	5, 8, 3, 7, 4,
+		7, 6, 3, 9, 2;
+ENDDATA
+END
+
+! b) E, ty den har billigast klädsel för fabrik 2, som har högst efterfrågan ;
+! c) 1: Ja, den ändras. Fler beställningar från leverantör C går till fabrik 1 kontra fabrik 2 ;
+! c) 2: Ja, dock inte lika markant. Förlusten av att inte köpa från C till fabrik 1 är i viss mån mindre än vinsten att köpa mer från C till fabrik 2, vilket ändrar upplägget en aning.;
